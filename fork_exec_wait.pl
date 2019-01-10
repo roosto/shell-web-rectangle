@@ -17,6 +17,15 @@ if ( $fork_rv == 0 ) {
 
 	# our very own super lame output redirection
 	if ( defined $ENV{'OUT_FILE'} ) {
+
+		# if the file does not exist create it; emulate the behavior of touch(1) for when the file does not exist
+		if ( ! -e $ENV{'OUT_FILE'} ) {
+			open my $fh, '>', $ENV{'OUT_FILE'}
+				or die "could not `open '>', '$ENV{'OUT_FILE'}'`: $!";
+			close $fh
+				or die "could not close the open findehandle for $ENV{'OUT_FILE'}: $!";
+		}
+
 		my $new_fd = POSIX::open($ENV{'OUT_FILE'}, &POSIX::O_WRONLY | &POSIX::O_TRUNC)
 			or die "could not POSIX::open '$ENV{'OUT_FILE'}', &POSIX::O_WRONLY | &POSIX::O_TRUNC: $!";
 		POSIX::dup2($new_fd, 1)
